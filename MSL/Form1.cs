@@ -27,6 +27,7 @@ namespace MSL
         LMSSystem LMS = new LMSSystem();
         int LeftTime;
         int TIME_IN_CHAMBER;
+        DateTime OpenTime;
 
         string clear = "CLEAR";
 
@@ -87,7 +88,10 @@ namespace MSL
                 lblAmount.Text = dtQuerry.Rows[0]["AMOUNT"].ToString();
 
                 DateTime Current = DateTime.Now;
-                DateTime OpenTime = (DateTime)dtQuerry.Rows[0]["OPENTIMESTAMP"];
+                if (!(dtQuerry.Rows[0]["OPENTIMESTAMP"] is DBNull))
+                {
+                    OpenTime = (DateTime)dtQuerry.Rows[0]["OPENTIMESTAMP"];
+                }
                 TimeSpan timeSpan = Current.Subtract(OpenTime);
 
                 int OPENTIME = Convert.ToInt32(dtOpen.Rows[0]["OPEN_TIME"]);
@@ -105,7 +109,7 @@ namespace MSL
                 {
                     lblLeftTime.Text = LeftTime.ToString();
                 }
-           
+
 
                 if (lblLeftTime.Text.ToString() == "0")
                 {
