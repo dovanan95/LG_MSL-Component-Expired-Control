@@ -8,10 +8,12 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>MSL</RootNamespace>
     <AssemblyName>MSL</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -91,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="lg_Fxd_icon.ico" />
+    <None Include="Resources\CLEAR.png" />
     <None Include="Resources\LG전자.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
