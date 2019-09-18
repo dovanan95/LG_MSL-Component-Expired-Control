@@ -25,7 +25,8 @@ namespace MSL
         OracleConnection con3 = new OracleConnection(connectionString3);
 
         LMSSystem LMS = new LMSSystem();
-
+        int LeftTime;
+        int TIME_IN_CHAMBER;
 
         string clear = "CLEAR";
 
@@ -59,15 +60,15 @@ namespace MSL
 
                 if (cbSystem.SelectedValue == "4P")
                 {
-                    daQuerry =  new OracleDataAdapter(strQuerry, con);
+                    daQuerry = new OracleDataAdapter(strQuerry, con);
                     daOpen = new OracleDataAdapter(strOpenTime, con);
                 }
-                else if(cbSystem.SelectedValue == "HSE")
+                else if (cbSystem.SelectedValue == "HSE")
                 {
                     daQuerry = new OracleDataAdapter(strQuerry, con2);
                     daOpen = new OracleDataAdapter(strOpenTime, con2);
                 }
-                else if(cbSystem.SelectedValue == "DDE")
+                else if (cbSystem.SelectedValue == "DDE")
                 {
                     daQuerry = new OracleDataAdapter(strQuerry, con3);
                     daOpen = new OracleDataAdapter(strOpenTime, con3);
@@ -82,7 +83,7 @@ namespace MSL
                 lblUsed.Text = dtQuerry.Rows[0]["USED"].ToString();
                 lblPartNo.Text = dtQuerry.Rows[0]["PART_NO"].ToString();
                 lblInputDate.Text = dtQuerry.Rows[0]["OPENTIMESTAMP"].ToString();
-                //lblLeftTime.Text = dtQuerry.Rows[0]["LEFT_TIME"].ToString();
+                lblLeftTime.Text = dtQuerry.Rows[0]["LEFT_TIME"].ToString();
                 lblAmount.Text = dtQuerry.Rows[0]["AMOUNT"].ToString();
 
                 DateTime Current = DateTime.Now;
@@ -90,32 +91,36 @@ namespace MSL
                 TimeSpan timeSpan = Current.Subtract(OpenTime);
 
                 int OPENTIME = Convert.ToInt32(dtOpen.Rows[0]["OPEN_TIME"]);
-                int TIME_IN_CHAMBER = Convert.ToInt32(dtQuerry.Rows[0]["TIME_IN_CHAMBER"]);
-                int LeftTime = OPENTIME - (int)timeSpan.TotalMinutes + TIME_IN_CHAMBER;
 
-                lblLeftCurrent.Text = LeftTime.ToString();
+                //If the system has no data of Left Time for Component
 
-                if(dtQuerry.Rows[0]["LEFT_TIME"].ToString() == "")
+                if (!(dtQuerry.Rows[0]["TIME_IN_CHAMBER"] is DBNull))
+                {
+                    TIME_IN_CHAMBER = Convert.ToInt32(dtQuerry.Rows[0]["TIME_IN_CHAMBER"]);
+                    LeftTime = OPENTIME - (int)timeSpan.TotalMinutes + TIME_IN_CHAMBER; //algorithm to calculate the Left Time
+                    lblLeftCurrent.Text = LeftTime.ToString();
+                }
+
+                if (dtQuerry.Rows[0]["LEFT_TIME"] is DBNull)
                 {
                     lblLeftTime.Text = LeftTime.ToString();
                 }
-                else if(dtQuerry.Rows[0]["LEFT_TIME"].ToString() != "")
-                {
-                    lblLeftTime.Text = dtQuerry.Rows[0]["LEFT_TIME"].ToString();
-                }
+           
 
-                if (lblLeftCurrent.Text.ToString() == "0")
+                if (lblLeftTime.Text.ToString() == "0")
                 {
                     lblExpired.Text = "YES";
                     lblExpired.ForeColor = Color.Red;
 
                 }
-                else if (lblLeftCurrent.Text.ToString() != "0")
+                else if (lblLeftTime.Text.ToString() != "0")
                 {
                     lblExpired.Text = "NO";
                     lblExpired.ForeColor = Color.Blue;
                 }
-                txtReelID.Focus();   
+
+
+                txtReelID.Focus();
             }
             catch (Exception ex)
             {
@@ -142,7 +147,7 @@ namespace MSL
                     btnQuerry_Click(this, new EventArgs());
                 }
             }
-            
+
         }
 
         private void btnClear_Click(object sender, EventArgs e)
