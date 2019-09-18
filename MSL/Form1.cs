@@ -27,6 +27,8 @@ namespace MSL
         LMSSystem LMS = new LMSSystem();
         int LeftTime;
         int TIME_IN_CHAMBER;
+        int OPENTIME;
+        int TIME_IN_OVEN;
         DateTime OpenTime;
 
         string clear = "CLEAR";
@@ -92,32 +94,54 @@ namespace MSL
                 {
                     OpenTime = (DateTime)dtQuerry.Rows[0]["OPENTIMESTAMP"];
                 }
+                else if (dtQuerry.Rows[0]["OPENTIMESTAMP"] is DBNull)
+                {
+                    OpenTime = DateTime.MinValue;
+                }
+
                 TimeSpan timeSpan = Current.Subtract(OpenTime);
-
-                int OPENTIME = Convert.ToInt32(dtOpen.Rows[0]["OPEN_TIME"]);
-
+                if (!(dtOpen.Rows[0]["OPEN_TIME"] is DBNull))
+                {
+                    OPENTIME = Convert.ToInt32(dtOpen.Rows[0]["OPEN_TIME"]);
+                }
+                else if (dtOpen.Rows[0]["OPEN_TIME"] is DBNull)
+                {
+                    OPENTIME = 0;
+                }
                 //If the system has no data of Left Time for Component
 
                 if (!(dtQuerry.Rows[0]["TIME_IN_CHAMBER"] is DBNull))
                 {
+                    //TIME_IN_OVEN = Convert.ToInt32(dtQuerry.Rows[0]["TIME_IN_OVEN"]);
                     TIME_IN_CHAMBER = Convert.ToInt32(dtQuerry.Rows[0]["TIME_IN_CHAMBER"]);
                     LeftTime = OPENTIME - (int)timeSpan.TotalMinutes + TIME_IN_CHAMBER; //algorithm to calculate the Left Time
                     lblLeftCurrent.Text = LeftTime.ToString();
+                }
+                else if (dtQuerry.Rows[0]["TIME_IN_CHAMBER"] is DBNull)
+                {
+                    TIME_IN_CHAMBER = 0;
+                    TIME_IN_OVEN = 0;
                 }
 
                 if (dtQuerry.Rows[0]["LEFT_TIME"] is DBNull)
                 {
                     lblLeftTime.Text = LeftTime.ToString();
                 }
-
-
-                if (lblLeftTime.Text.ToString() == "0")
+                else if(!(dtQuerry.Rows[0]["LEFT_TIME"] is DBNull))
                 {
+                    lblLeftTime.Text = dtQuerry.Rows[0]["LEFT_TIME"].ToString();
+                }
+
+
+                if (Convert.ToInt32(lblLeftTime.Text) <= 1)
+                {
+                    lblLeftTime.Text = "0";
+                    lblLeftCurrent.Text = "0";
                     lblExpired.Text = "YES";
                     lblExpired.ForeColor = Color.Red;
 
                 }
-                else if (lblLeftTime.Text.ToString() != "0")
+                else if (Convert.ToInt32(lblLeftTime.Text) >= 1)
                 {
                     lblExpired.Text = "NO";
                     lblExpired.ForeColor = Color.Blue;
@@ -181,6 +205,7 @@ namespace MSL
 
         private void cbSystem_SelectedIndexChanged(object sender, EventArgs e)
         {
+            //txtReelID.ResetText();
             txtReelID.Focus();
         }
     }
