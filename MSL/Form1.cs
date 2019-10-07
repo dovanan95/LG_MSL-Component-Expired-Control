@@ -30,6 +30,7 @@ namespace MSL
         int OPENTIME;
         int TIME_IN_OVEN;
         DateTime OpenTime;
+        DateTime Chamber_In;
 
         string clear = "CLEAR";
 
@@ -100,6 +101,15 @@ namespace MSL
                 }
 
                 TimeSpan timeSpan = Current.Subtract(OpenTime);
+                if (!(dtQuerry.Rows[0]["CHAMBER_INPUT_TIME"] is DBNull))
+                {
+                    Chamber_In = (DateTime)dtQuerry.Rows[0]["CHAMBER_INPUT_TIME"];
+                }
+                else
+                {
+                    Chamber_In = DateTime.MinValue;
+                }
+                TimeSpan timeSpan_Chamber = Chamber_In.Subtract(OpenTime);
                 if (!(dtOpen.Rows[0]["OPEN_TIME"] is DBNull))
                 {
                     OPENTIME = Convert.ToInt32(dtOpen.Rows[0]["OPEN_TIME"]);
@@ -112,22 +122,33 @@ namespace MSL
 
                 if (!(dtQuerry.Rows[0]["TIME_IN_CHAMBER"] is DBNull))
                 {
-                    //TIME_IN_OVEN = Convert.ToInt32(dtQuerry.Rows[0]["TIME_IN_OVEN"]);
-                    TIME_IN_CHAMBER = Convert.ToInt32(dtQuerry.Rows[0]["TIME_IN_CHAMBER"]);
-                    LeftTime = OPENTIME - (int)timeSpan.TotalMinutes + TIME_IN_CHAMBER; //algorithm to calculate the Left Time
-                    lblLeftCurrent.Text = LeftTime.ToString();
+                    if (!(dtQuerry.Rows[0]["CHAMBER_INPUT_TIME"] is DBNull))
+                    {
+                        TIME_IN_CHAMBER = Convert.ToInt32(dtQuerry.Rows[0]["TIME_IN_CHAMBER"]);
+
+                        LeftTime = OPENTIME - (int)timeSpan_Chamber.TotalMinutes + TIME_IN_CHAMBER;
+                        lblLeftCurrent.Text = LeftTime.ToString();
+                    }
+                    else
+                    {
+
+                        TIME_IN_CHAMBER = Convert.ToInt32(dtQuerry.Rows[0]["TIME_IN_CHAMBER"]);
+                        LeftTime = OPENTIME - (int)timeSpan.TotalMinutes + TIME_IN_CHAMBER; //algorithm to calculate the Left Time
+                        lblLeftCurrent.Text = LeftTime.ToString();
+                    }
                 }
                 else if (dtQuerry.Rows[0]["TIME_IN_CHAMBER"] is DBNull)
                 {
                     TIME_IN_CHAMBER = 0;
-                    TIME_IN_OVEN = 0;
+                    //LeftTime = OPENTIME - (int)timeSpan_Chamber.TotalMinutes;
+                    //lblLeftCurrent.Text = LeftTime.ToString();
                 }
 
                 if (dtQuerry.Rows[0]["LEFT_TIME"] is DBNull)
                 {
                     lblLeftTime.Text = LeftTime.ToString();
                 }
-                else if(!(dtQuerry.Rows[0]["LEFT_TIME"] is DBNull))
+                else if (!(dtQuerry.Rows[0]["LEFT_TIME"] is DBNull))
                 {
                     lblLeftTime.Text = dtQuerry.Rows[0]["LEFT_TIME"].ToString();
                 }
